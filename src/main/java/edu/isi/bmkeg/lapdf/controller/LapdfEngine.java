@@ -310,8 +310,9 @@ public class LapdfEngine {
 		doc.setPdfFile(f);
 
 		if (doc.hasjPedalDecodeFailed()) {
-			return null;
+			throw new Exception("JPedalDecode of pdf " + f.getPath() + " failed!");
 		}
+		
 		return doc;
 
 	}
@@ -323,7 +324,7 @@ public class LapdfEngine {
 		doc = parser.parseXml(s);
 
 		if (doc.hasjPedalDecodeFailed()) {
-			return null;
+			throw new Exception("JPedalDecode of " + s + " failed!");
 		}
 
 		return doc;
@@ -805,6 +806,8 @@ public class LapdfEngine {
 			String txt = c.readChunkText();
 			Matcher m = patt.matcher(txt);
 			if (m.find()) {
+				
+				
 
 				// Find neighboring blocks above, to the left, and to the right...
 				if (c instanceof RTChunkBlock) {
@@ -893,10 +896,13 @@ public class LapdfEngine {
 						((ChunkBlock) se).getChunkType().equals(ChunkBlock.TYPE_FIGURE) &&
 						fb.getWidth() > se.getWidth() + 20 ) {
 					SpatialEntity ir = fb.getIntersectingRectangle(se);
-					if (ir.getX1() > fb.getX1())
-						fb.resize(ir.getX2() + 1, fb.getY1(), fb.getX2() - ir.getX2() - 1, fb.getY2() - fb.getY1());
+					int leftSpace = Math.abs(ir.getX1() - fb.getX1());
+					int rightSpace = Math.abs(ir.getX2() - fb.getX2());
+						
+					if (leftSpace > rightSpace)
+						fb.resize(fb.getX1(), fb.getY1(), leftSpace, fb.getY2() - fb.getY1());
 					else
-						fb.resize(fb.getX1(), fb.getY1(), ir.getX1() - fb.getX1() - 1, fb.getY2() - fb.getY1());
+						fb.resize(ir.getX2(), fb.getY1(), rightSpace, fb.getY2() - fb.getY1());
 					
 				}
 			}
