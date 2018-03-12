@@ -1,22 +1,13 @@
 package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.uima.resource.ResourceInitializationException;
-
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
-import edu.isi.bmkeg.lapdf.controller.LapdfMode;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.text.SpatialLayoutFeaturesReportGenerator;
-import edu.isi.bmkeg.lapdf.uima.cpe.CommandLineFitPipeline;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
 import edu.isi.bmkeg.utils.Converters;
-import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 
 public class BlockStatistics {
 

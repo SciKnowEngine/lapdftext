@@ -12,7 +12,6 @@ import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.DecisionTableConfiguration;
 import org.drools.builder.DecisionTableInputType;
 import org.drools.builder.KnowledgeBuilder;
-import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.compiler.DecisionTableFactory;
@@ -24,7 +23,6 @@ import org.drools.runtime.StatelessKnowledgeSession;
 
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
-import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.utils.Converters;
@@ -47,12 +45,11 @@ public class RuleBasedChunkClassifier implements Classifier<ChunkBlock> {
 			DecisionTableConfiguration dtableconfiguration) throws IOException  {
 		
 		String rules = DecisionTableFactory.loadFromInputStream(ResourceFactory.newFileResource(droolsFileName).getInputStream(), dtableconfiguration);
-		logger.info( "GENERATED RULE FILE FROM SPREADSHEET:\n" + rules);
+		logger.info( "RULES GENERATED FROM SPREADSHEET:\n" + droolsFileName);
 		
 	}
 	
-	public RuleBasedChunkClassifier(String droolsFileName,
-			AbstractModelFactory modelFactory) throws IOException, ClassificationException  {
+	public RuleBasedChunkClassifier(String droolsFileName) throws IOException, ClassificationException  {
 
 		// Workaround for JBRULES-3163
 		Properties properties = new Properties();
@@ -128,10 +125,17 @@ public class RuleBasedChunkClassifier implements Classifier<ChunkBlock> {
 		this.kSession = kbase.newStatelessKnowledgeSession();
 		for (ChunkBlock chunk : blockList) {
 			kSession.setGlobal("chunk", chunk);
-			kSession.execute(new ChunkFeatures(chunk, modelFactory));
 		}
 		this.kSession = null;
 
 	}
 
+	@Override
+	public void classify(ChunkBlock chunk) {
+		
+		this.kSession = kbase.newStatelessKnowledgeSession();
+		kSession.setGlobal("chunk", chunk);
+
+	}
+	
 }

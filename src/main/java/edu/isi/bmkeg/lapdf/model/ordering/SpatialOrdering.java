@@ -2,7 +2,6 @@ package edu.isi.bmkeg.lapdf.model.ordering;
 
 import java.util.Comparator;
 
-import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.PageBlock;

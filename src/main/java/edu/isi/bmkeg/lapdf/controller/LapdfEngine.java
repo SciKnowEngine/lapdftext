@@ -40,9 +40,7 @@ import edu.isi.bmkeg.lapdf.classification.ruleBased.RuleBasedChunkClassifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
-import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.LapdfDirection;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
@@ -81,6 +79,7 @@ public class LapdfEngine {
 	private RuleBasedParser parser;
 
 	private File ruleFile;
+	private RuleBasedChunkClassifier classfier;
 
 	private boolean imgFlag = false;
 
@@ -104,8 +103,7 @@ public class LapdfEngine {
 	public LapdfEngine(boolean imgFlag) throws Exception {
 
 		this.parser = new RuleBasedParser(new RTModelFactory());
-		URL u = this.getClass().getClassLoader()
-				.getResource("rules/general.drl");
+		URL u = this.getClass().getClassLoader().getResource("rules/general.drl");
 		this.setRuleFile(new File(u.getPath()));
 		this.setImgFlag(imgFlag);
 
@@ -141,14 +139,15 @@ public class LapdfEngine {
 		return ruleFile;
 	}
 
-	public void setRuleFile(File ruleFile) {
+	public void setRuleFile(File ruleFile) throws IOException, ClassificationException {
 		this.ruleFile = ruleFile;
+		this.classfier = new RuleBasedChunkClassifier(ruleFile.getPath());
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public void processBlocks(File inFile, File outDir, boolean reportBlocks,
-			boolean extractUnclassified) throws Exception {
+	public void processBlocks(File inFile, File outDir, boolean reportBlocks, boolean extractUnclassified)
+			throws Exception {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
@@ -158,13 +157,12 @@ public class LapdfEngine {
 		LapdfDocument doc = blockifyFile(inFile);
 
 		if (doc == null) {
-			logger.info("Error encountered while performing block detection."
-					+ " Skipping " + inFile.getPath() + " because doc is null");
+			logger.info("Error encountered while performing block detection." + " Skipping " + inFile.getPath()
+					+ " because doc is null");
 			return;
 		}
 
-		logger.info("Writing spatial block xml to " + outDir.getPath() + "/"
-				+ stem + "_spatial.xml");
+		logger.info("Writing spatial block xml to " + outDir.getPath() + "/" + stem + "_spatial.xml");
 
 		if (this.isImgFlag())
 			this.dumpWordOrderImageOutlinesToFiles(doc, outDir, stem);
@@ -177,23 +175,21 @@ public class LapdfEngine {
 			logger.info("Running block feature reporter on " + inFile.getPath());
 
 			SpatialLayoutFeaturesReportGenerator slfrg = new SpatialLayoutFeaturesReportGenerator();
-			slfrg.write(doc, outDir.getPath() + "/" + stem
-					+ "_spatialFeatures.dat");
+			slfrg.write(doc, outDir.getPath() + "/" + stem + "_spatialFeatures.dat");
 
 		}
 
 		if (extractUnclassified) {
 
 			SpatiallyOrderedChunkTextWriter soctw = new SpatiallyOrderedChunkTextWriter();
-			soctw.write(doc, outDir.getPath() + "/" + stem
-					+ "_unclassifiedFlowAwareText.dat");
+			soctw.write(doc, outDir.getPath() + "/" + stem + "_unclassifiedFlowAwareText.dat");
 
 		}
 
 	}
 
-	public void processClassify(File inFile, File outDir, boolean reportBlocks,
-			boolean extractUnclassified) throws Exception {
+	public void processClassify(File inFile, File outDir, boolean reportBlocks, boolean extractUnclassified)
+			throws Exception {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
@@ -203,15 +199,14 @@ public class LapdfEngine {
 		LapdfDocument doc = blockifyFile(inFile);
 		if (doc == null) {
 
-			logger.info("Error encountered while performing block detection. Skipping "
-					+ inFile.getPath() + " because doc is null");
+			logger.info("Error encountered while performing block detection. Skipping " + inFile.getPath()
+					+ " because doc is null");
 
 			return;
 
 		}
 
-		logger.info("Writing spatial block xml to " + outDir.getPath() + "/"
-				+ stem + "_spatial.xml");
+		logger.info("Writing spatial block xml to " + outDir.getPath() + "/" + stem + "_spatial.xml");
 
 		SpatialXMLWriter sxw = new SpatialXMLWriter();
 		sxw.write(doc, outDir.getPath() + "/" + stem + "_spatial.xml");
@@ -222,8 +217,8 @@ public class LapdfEngine {
 		if (this.isImgFlag())
 			this.dumpWordOrderImageOutlinesToFiles(doc, outDir, stem);
 
-		logger.info("Writing block classified XML in OpenAccess format "
-				+ outDir.getPath() + "/" + stem + "_rhetorical.xml");
+		logger.info("Writing block classified XML in OpenAccess format " + outDir.getPath() + "/" + stem
+				+ "_rhetorical.xml");
 
 		OpenAccessXMLWriter oaxw = new OpenAccessXMLWriter();
 		oaxw.write(doc, outDir.getPath() + "/" + stem + "_rhetorical.xml");
@@ -234,23 +229,21 @@ public class LapdfEngine {
 
 			SpatialLayoutFeaturesReportGenerator slfrg = new SpatialLayoutFeaturesReportGenerator();
 
-			slfrg.write(doc, outDir.getPath() + "/" + stem
-					+ "_spatialFeatures.dat");
+			slfrg.write(doc, outDir.getPath() + "/" + stem + "_spatialFeatures.dat");
 
 		}
 
 		if (extractUnclassified) {
 
 			SpatiallyOrderedChunkTextWriter soctw = new SpatiallyOrderedChunkTextWriter();
-			soctw.write(doc, outDir.getPath() + "/" + stem
-					+ "_unclassifiedFlowAwareText.dat");
+			soctw.write(doc, outDir.getPath() + "/" + stem + "_unclassifiedFlowAwareText.dat");
 
 		}
 
 	}
 
-	public void processSectionFilter(File inFile, File outDir,
-			boolean reportBlocks, boolean extractUnclassified) throws Exception {
+	public void processSectionFilter(File inFile, File outDir, boolean reportBlocks, boolean extractUnclassified)
+			throws Exception {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
@@ -262,8 +255,8 @@ public class LapdfEngine {
 		LapdfDocument doc = blockifyFile(inFile);
 
 		if (doc == null) {
-			logger.info("Error encountered while performing block detection. Skipping "
-					+ inFile.getPath() + " because doc is null");
+			logger.info("Error encountered while performing block detection. Skipping " + inFile.getPath()
+					+ " because doc is null");
 			return;
 		}
 
@@ -274,25 +267,22 @@ public class LapdfEngine {
 		if (this.isImgFlag())
 			this.dumpWordOrderImageOutlinesToFiles(doc, outDir, stem);
 
-		SpatiallyOrderedChunkTypeFilteredTextWriter soctftw = new SpatiallyOrderedChunkTypeFilteredTextWriter(
-				true, true);
-		soctftw.write(doc, outDir.getPath() + "/" + stem
-				+ "_spatialFiltered.txt");
+		SpatiallyOrderedChunkTypeFilteredTextWriter soctftw = new SpatiallyOrderedChunkTypeFilteredTextWriter(true,
+				true);
+		soctftw.write(doc, outDir.getPath() + "/" + stem + "_spatialFiltered.txt");
 
-		logger.info("Writing block classified XML in OpenAccess format "
-				+ outDir.getPath() + "/" + stem + "_rhetorical.xml");
+		logger.info("Writing block classified XML in OpenAccess format " + outDir.getPath() + "/" + stem
+				+ "_rhetorical.xml");
 
 		if (reportBlocks) {
 			logger.info("Running block feature reporter on " + inFile.getPath());
 			SpatialLayoutFeaturesReportGenerator slfrg = new SpatialLayoutFeaturesReportGenerator();
-			slfrg.write(doc, outDir.getPath() + "/" + stem
-					+ "_spatialFeatures.dat");
+			slfrg.write(doc, outDir.getPath() + "/" + stem + "_spatialFeatures.dat");
 		}
 
 		if (extractUnclassified) {
 			SpatiallyOrderedChunkTextWriter soctw = new SpatiallyOrderedChunkTextWriter();
-			soctw.write(doc, outDir.getPath() + "/" + stem
-					+ "_unclassifiedFlowAwareText.dat");
+			soctw.write(doc, outDir.getPath() + "/" + stem + "_unclassifiedFlowAwareText.dat");
 		}
 
 	}
@@ -343,14 +333,12 @@ public class LapdfEngine {
 	public void classifyDocumentWithBaselineRules(LapdfDocument document)
 			throws ClassificationException, IOException, URISyntaxException {
 
-		File f = Converters.extractFileFromJarClasspath(".",
-				"rules/general.drl");
+		File f = Converters.extractFileFromJarClasspath(".", "rules/general.drl");
 
 		this.classifyDocument(document, f);
 
 		if (this.isImgFlag())
-			this.dumpWordOrderImageOutlinesToFiles(document, new File("."),
-					"debug");
+			this.dumpWordOrderImageOutlinesToFiles(document, new File("."), "debug");
 
 	}
 
@@ -363,18 +351,13 @@ public class LapdfEngine {
 	 *            - a rule file on disk
 	 * @throws IOException
 	 */
-	public void classifyDocument(LapdfDocument document, File ruleFile)
-			throws ClassificationException, IOException {
-
-		RuleBasedChunkClassifier classfier = new RuleBasedChunkClassifier(
-				ruleFile.getPath(), new RTModelFactory());
+	public void classifyDocument(LapdfDocument document, File ruleFile) throws ClassificationException, IOException {
 
 		for (int i = 1; i <= document.getTotalNumberOfPages(); i++) {
 
 			PageBlock page = document.getPage(i);
 
-			List<ChunkBlock> chunkList = page
-					.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
+			List<ChunkBlock> chunkList = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 
 			classfier.classify(chunkList);
 
@@ -382,8 +365,7 @@ public class LapdfEngine {
 
 	}
 
-	public String readBasicText(LapdfDocument document) throws IOException,
-			FileNotFoundException {
+	public String readBasicText(LapdfDocument document) throws IOException, FileNotFoundException {
 
 		List<Set<String>> stack = new ArrayList<Set<String>>();
 
@@ -400,8 +382,7 @@ public class LapdfEngine {
 
 	}
 
-	public String readCompleteText(LapdfDocument document) throws IOException,
-			FileNotFoundException {
+	public String readCompleteText(LapdfDocument document) throws IOException, FileNotFoundException {
 
 		List<Set<String>> stack = new ArrayList<Set<String>>();
 
@@ -413,40 +394,21 @@ public class LapdfEngine {
 
 		Set<String> sections2 = new HashSet<String>();
 		sections2.add(ChunkBlock.TYPE_ABSTRACT);
-		sections2.add(ChunkBlock.TYPE_ABSTRACT_HEADING);
-		sections2.add(ChunkBlock.TYPE_ABSTRACT_BODY);
 		stack.add(sections2);
 
 		Set<String> sections3 = new HashSet<String>();
 		sections3.add(ChunkBlock.TYPE_BODY);
 		sections3.add(ChunkBlock.TYPE_HEADING);
-		sections3.add(ChunkBlock.TYPE_METHODS);
-		sections3.add(ChunkBlock.TYPE_METHODS_HEADING);
-		sections3.add(ChunkBlock.TYPE_METHODS_BODY);
-		sections3.add(ChunkBlock.TYPE_METHODS_SUBTITLE);
-		sections3.add(ChunkBlock.TYPE_RESULTS);
-		sections3.add(ChunkBlock.TYPE_RESULTS_HEADING);
-		sections3.add(ChunkBlock.TYPE_RESULTS_BODY);
-		sections3.add(ChunkBlock.TYPE_RESULTS_SUBTITLE);
-		sections3.add(ChunkBlock.TYPE_DISCUSSION);
-		sections3.add(ChunkBlock.TYPE_DISCUSSION_HEADING);
-		sections3.add(ChunkBlock.TYPE_DISCUSSION_BODY);
-		sections3.add(ChunkBlock.TYPE_DISCUSSION_SUBTITLE);
-		sections3.add(ChunkBlock.TYPE_DISCUSSION);
-		sections3.add(ChunkBlock.TYPE_CONCLUSIONS);
-		sections3.add(ChunkBlock.TYPE_CONCLUSIONS_HEADING);
-		sections3.add(ChunkBlock.TYPE_CONCLUSIONS_BODY);
-		sections3.add(ChunkBlock.TYPE_CONCLUSIONS_SUBTITLE);
-		sections3.add(ChunkBlock.TYPE_INTRODUCTION);
-		sections3.add(ChunkBlock.TYPE_INTRODUCTION_HEADING);
-		sections3.add(ChunkBlock.TYPE_INTRODUCTION_BODY);
-		sections3.add(ChunkBlock.TYPE_INTRODUCTION_SUBTITLE);
+		sections3.add(ChunkBlock.SECTION_METHODS);
+		sections3.add(ChunkBlock.SECTION_RESULTS);
+		sections3.add(ChunkBlock.SECTION_DISCUSSION);
+		sections3.add(ChunkBlock.SECTION_DISCUSSION);
+		sections3.add(ChunkBlock.SECTION_CONCLUSIONS);
+		sections3.add(ChunkBlock.SECTION_INTRODUCTION);
 		stack.add(sections3);
 
 		Set<String> sections4 = new HashSet<String>();
-		sections4.add(ChunkBlock.TYPE_ACKNOWLEDGEMENTS);
-		sections4.add(ChunkBlock.TYPE_ACKNOWLEDGEMENTS_HEADING);
-		sections4.add(ChunkBlock.TYPE_ACKNOWLEDGEMENTS_BODY);
+		sections4.add(ChunkBlock.SECTION_ACKNOWLEDGEMENTS);
 		stack.add(sections4);
 
 		Set<String> sections5 = new HashSet<String>();
@@ -460,8 +422,8 @@ public class LapdfEngine {
 
 	}
 
-	public String readClassifiedText(LapdfDocument document,
-			List<Set<String>> stack) throws IOException, FileNotFoundException {
+	public String readClassifiedText(LapdfDocument document, List<Set<String>> stack)
+			throws IOException, FileNotFoundException {
 
 		StringBuilder text = new StringBuilder();
 
@@ -477,8 +439,8 @@ public class LapdfEngine {
 
 	}
 
-	public String readClassifiedText(LapdfDocument document,
-			Set<String> sections) throws IOException, FileNotFoundException {
+	public String readClassifiedText(LapdfDocument document, Set<String> sections)
+			throws IOException, FileNotFoundException {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -486,11 +448,10 @@ public class LapdfEngine {
 		for (int i = 1; i <= n; i++) {
 			PageBlock page = document.getPage(i);
 
-			List<ChunkBlock> chunksPerPage = page
-					.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
+			List<ChunkBlock> chunksPerPage = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 
 			for (ChunkBlock chunkBlock : chunksPerPage) {
-				if (sections.contains(chunkBlock.getType())) {
+				if (sections.contains(chunkBlock.getChunkType())) {
 					sb.append(chunkBlock.readChunkText() + "\n");
 				}
 			}
@@ -521,8 +482,7 @@ public class LapdfEngine {
 	 * @param out
 	 * @throws IOException
 	 */
-	public void writeBlockStatisticsReport(LapdfDocument doc, File out)
-			throws IOException {
+	public void writeBlockStatisticsReport(LapdfDocument doc, File out) throws IOException {
 
 		logger.info("Writing spatial features report to " + out.getPath());
 		SpatialLayoutFeaturesReportGenerator slfrg = new SpatialLayoutFeaturesReportGenerator();
@@ -544,8 +504,8 @@ public class LapdfEngine {
 	}
 
 	/**
-	 * Render images of the positions of words on each page of pdf annotated
-	 * with order of being added to the block.
+	 * Render images of the positions of words on each page of pdf annotated with
+	 * order of being added to the block.
 	 * 
 	 * @param doc
 	 * @param dir
@@ -553,22 +513,19 @@ public class LapdfEngine {
 	 * @param mode
 	 * @throws IOException
 	 */
-	public void dumpWordOrderImageOutlinesToFiles(LapdfDocument doc, File dir,
-			String stem) throws IOException {
+	public void dumpWordOrderImageOutlinesToFiles(LapdfDocument doc, File dir, String stem) throws IOException {
 
 		for (int i = 1; i <= doc.getTotalNumberOfPages(); i++) {
 			PageBlock page = doc.getPage(i);
-			File imgFile = new File(dir.getPath() + "/" + stem + "_"
-					+ page.getPageNumber() + ".png");
-			PageImageOutlineRenderer.dumpWordOrderPageImageToFile(page,
-					imgFile, stem + "_" + page.getPageNumber());
+			File imgFile = new File(dir.getPath() + "/" + stem + "_" + page.getPageNumber() + ".png");
+			PageImageOutlineRenderer.dumpWordOrderPageImageToFile(page, imgFile, stem + "_" + page.getPageNumber());
 		}
 
 	}
 
 	/**
-	 * Render images of the positions of chunks on each page annotated with
-	 * chunk types.
+	 * Render images of the positions of chunks on each page annotated with chunk
+	 * types.
 	 * 
 	 * @param doc
 	 * @param dir
@@ -576,29 +533,24 @@ public class LapdfEngine {
 	 * @param lapdfMode
 	 * @throws IOException
 	 */
-	public void dumpChunkTypeImageOutlinesToFiles(LapdfDocument doc, File dir,
-			String stem) throws IOException {
+	public void dumpChunkTypeImageOutlinesToFiles(LapdfDocument doc, File dir, String stem) throws IOException {
 
 		for (int i = 1; i <= doc.getTotalNumberOfPages(); i++) {
 			PageBlock page = doc.getPage(i);
-			File imgFile = new File(dir.getPath() + "/" + stem + "_"
-					+ page.getPageNumber() + ".png");
-			PageImageOutlineRenderer.dumpChunkTypePageImageToFile(page,
-					imgFile, stem + "_" + page.getPageNumber());
+			File imgFile = new File(dir.getPath() + "/" + stem + "_" + page.getPageNumber() + ".png");
+			PageImageOutlineRenderer.dumpChunkTypePageImageToFile(page, imgFile, stem + "_" + page.getPageNumber());
 		}
 
 	}
 
-	public List<BufferedImage> buildWordOrderImageList(LapdfDocument doc,
-			String stem) throws IOException {
+	public List<BufferedImage> buildWordOrderImageList(LapdfDocument doc, String stem) throws IOException {
 
 		List<BufferedImage> imgList = new ArrayList<BufferedImage>();
 
 		for (int i = 1; i <= doc.getTotalNumberOfPages(); i++) {
 			PageBlock page = doc.getPage(i);
-			BufferedImage img = PageImageOutlineRenderer
-					.createPageImageForBlocksWordOrder(page,
-							stem + "_" + page.getPageNumber());
+			BufferedImage img = PageImageOutlineRenderer.createPageImageForBlocksWordOrder(page,
+					stem + "_" + page.getPageNumber());
 			imgList.add(img);
 		}
 
@@ -613,32 +565,26 @@ public class LapdfEngine {
 	 * @param out
 	 * @throws IOException
 	 */
-	public void writeSpatialFeaturesReport(LapdfDocument doc, File out)
-			throws IOException {
+	public void writeSpatialFeaturesReport(LapdfDocument doc, File out) throws IOException {
 
-		logger.info("Writing block feature report of "
-				+ doc.getPdfFile().getPath() + " to " + out.getPath());
+		logger.info("Writing block feature report of " + doc.getPdfFile().getPath() + " to " + out.getPath());
 		SpatialLayoutFeaturesReportGenerator slfrg = new SpatialLayoutFeaturesReportGenerator();
 		slfrg.write(doc, out.getPath());
 
 	}
 
-	public void writeTextToFile(LapdfDocument doc, Set<String> sections,
-			File out) throws Exception {
+	public void writeTextToFile(LapdfDocument doc, Set<String> sections, File out) throws Exception {
 
-		logger.info("Writing text of  " + doc.getPdfFile().getPath() + " to "
-				+ out.getPath());
+		logger.info("Writing text of  " + doc.getPdfFile().getPath() + " to " + out.getPath());
 		SectionsTextWriter stw = new SectionsTextWriter();
 		stw.addToStack(sections);
 		stw.write(doc, out.getPath());
 
 	}
 
-	public void writeTextToFile(LapdfDocument doc, List<Set<String>> stack,
-			File out) throws Exception {
+	public void writeTextToFile(LapdfDocument doc, List<Set<String>> stack, File out) throws Exception {
 
-		logger.info("Writing text of  " + doc.getPdfFile().getPath() + " to "
-				+ out.getPath());
+		logger.info("Writing text of  " + doc.getPdfFile().getPath() + " to " + out.getPath());
 		SectionsTextWriter stw = new SectionsTextWriter();
 		Iterator<Set<String>> it = stack.iterator();
 		while (it.hasNext()) {
@@ -655,8 +601,7 @@ public class LapdfEngine {
 	 * @param outputFile
 	 * @throws IOException
 	 */
-	public void dumpFeaturesToSpreadsheet(LapdfDocument doc, File outputFile)
-			throws IOException {
+	public void dumpFeaturesToSpreadsheet(LapdfDocument doc, File outputFile) throws IOException {
 
 		FileWriter fw = new FileWriter(outputFile);
 		BufferedWriter bw = new BufferedWriter(fw);
@@ -671,8 +616,7 @@ public class LapdfEngine {
 	 * @param outputFile
 	 * @throws IOException
 	 */
-	public String dumpFeaturesToSpreadsheetString(LapdfDocument doc)
-			throws IOException {
+	public String dumpFeaturesToSpreadsheetString(LapdfDocument doc) throws IOException {
 
 		/*
 		 * The features of ChunkBlocks to include
@@ -681,19 +625,17 @@ public class LapdfEngine {
 		 * 
 		 * 1. isMostPopularFontInDocument 2. isNextMostPopularFontInDocument 3.
 		 * getHeightDifferenceBetweenChunkWordAndDocumentWord 4. isInTopHalf 5.
-		 * getMostPopularFontSize 6. isAllCapitals 7.
-		 * isMostPopularFontModifierBold 8. isMostPopularFontModifierItalic 9.
-		 * isContainingFirstLineOfPage 10. isContainingLastLineOfPage 11.
-		 * isOutlier 12. getChunkTextLength 13. readDensity 14.
-		 * isAlignedWithColumnBoundaries 15. getPageNumber 16. isColumnCentered
-		 * 17. isWithinBodyTextFrame
+		 * getMostPopularFontSize 6. isAllCapitals 7. isMostPopularFontModifierBold 8.
+		 * isMostPopularFontModifierItalic 9. isContainingFirstLineOfPage 10.
+		 * isContainingLastLineOfPage 11. isOutlier 12. getChunkTextLength 13.
+		 * readDensity 14. isAlignedWithColumnBoundaries 15. getPageNumber 16.
+		 * isColumnCentered 17. isWithinBodyTextFrame
 		 * 
 		 * properties
 		 * 
 		 * 18. getMostPopularWordHeight 19. getMostPopularWordSpaceWidth 20.
-		 * getMostPopularWordFont 21. getMostPopularWordStyle 22.
-		 * readNumberOfLine 23. isHeaderOrFooter 24. readLeftRightMidline 25.
-		 * readChunkText
+		 * getMostPopularWordFont 21. getMostPopularWordStyle 22. readNumberOfLine 23.
+		 * isHeaderOrFooter 24. readLeftRightMidline 25. readChunkText
 		 */
 		int nFeatures = 25;
 		AbstractModelFactory modelFactory = new RTModelFactory();
@@ -795,32 +737,29 @@ public class LapdfEngine {
 		for (int i = 1; i <= n; i++) {
 			PageBlock page = doc.getPage(i);
 
-			List<ChunkBlock> blocks = page
-					.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
+			List<ChunkBlock> blocks = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 
 			for (int j = 0; j < blocks.size(); j++) {
 				ChunkBlock b = blocks.get(j);
-				ChunkFeatures cf = new ChunkFeatures(b, modelFactory);
 
 				sb.append("p:" + i + "." + j + ","); // 1
-				sb.append("," + cf.isMostPopularFontInDocument()); // 1
-				sb.append("," + cf.isNextMostPopularFontInDocument()); // 2
-				sb.append(","
-						+ cf.getHeightDifferenceBetweenChunkWordAndDocumentWord()); // 3
-				sb.append("," + cf.isInTopHalf()); // 4
-				sb.append("," + cf.getMostPopularFontSize()); // 5
-				sb.append("," + cf.isAllCapitals()); // 6
-				sb.append("," + cf.isMostPopularFontModifierBold()); // 7
-				sb.append("," + cf.isMostPopularFontModifierItalic()); // 8
-				sb.append("," + cf.isContainingFirstLineOfPage()); // 9
-				sb.append("," + cf.isContainingLastLineOfPage()); // 10
-				sb.append("," + cf.isOutlier()); // 11
-				sb.append("," + cf.getChunkTextLength()); // 12
-				sb.append("," + cf.getDensity()); // 13
-				sb.append("," + cf.isAlignedWithColumnBoundaries()); // 14
-				sb.append("," + cf.getPageNumber()); // 15
-				sb.append("," + cf.isColumnCentered()); // 16
-				sb.append("," + cf.isWithinBodyTextFrame()); // 17
+				sb.append("," + b.isMostPopularFontInDocument()); // 1
+				sb.append("," + b.isNextMostPopularFontInDocument()); // 2
+				sb.append("," + b.getHeightDifferenceBetweenChunkWordAndDocumentWord()); // 3
+				sb.append("," + b.isInTopHalf()); // 4
+				sb.append("," + b.getMostPopularFontSize()); // 5
+				sb.append("," + b.isAllCapitals()); // 6
+				sb.append("," + b.isMostPopularFontModifierBold()); // 7
+				sb.append("," + b.isMostPopularFontModifierItalic()); // 8
+				sb.append("," + b.isContainingFirstLineOfPage()); // 9
+				sb.append("," + b.isContainingLastLineOfPage()); // 10
+				sb.append("," + b.isOutlier()); // 11
+				sb.append("," + b.getChunkTextLength()); // 12
+				sb.append("," + b.getDensity()); // 13
+				sb.append("," + b.isAlignedWithColumnBoundaries()); // 14
+				sb.append("," + b.getPageNumber()); // 15
+				sb.append("," + b.isColumnCentered()); // 16
+				sb.append("," + b.isWithinBodyTextFrame()); // 17
 				sb.append("," + b.getMostPopularWordHeight()); // 18
 				sb.append("," + b.getMostPopularWordSpaceWidth()); // 19
 				sb.append("," + b.getMostPopularWordFont()); // 20
@@ -839,12 +778,14 @@ public class LapdfEngine {
 
 	}
 
-	public void extractFiguresFromArticle(File pdf, File outDir, String stem)
-			throws Exception {
+	public void extractFiguresFromArticle(File pdf, File outDir, String stem) throws Exception {
 
-		Pattern patt = Pattern.compile("^(Figure|Fig\\.{0,1})\\s+(\\d+)");
+		String figureRegex = "^(Figure|Fig\\.{0,1})\\s+(\\d+)";
+		Pattern patt = Pattern.compile(figureRegex);
 
 		LapdfDocument doc = this.blockifyFile(pdf);
+		// this.classifyDocument(doc, ruleFile);
+
 		SpatialEntity frame = doc.getBodyTextFrame();
 
 		Map<String, BufferedImage> imageList = new HashMap<String, BufferedImage>();
@@ -854,153 +795,84 @@ public class LapdfEngine {
 		SimpleRenderer renderer = new SimpleRenderer();
 		renderer.setResolution(72 * 5);
 		List<Image> pageImages = renderer.render(document);
-		
+		List<Image> copyImages = new ArrayList<Image>();
+		for (Image img : pageImages) {
+			copyImages.add(deepCopy((BufferedImage) img));
+		}
+
+		Map<RTChunkBlock, RTChunkBlock> captionBlockMap = new HashMap<RTChunkBlock, RTChunkBlock>();
 		for (ChunkBlock c : doc.readAllChunkBlocks()) {
 			String txt = c.readChunkText();
 			Matcher m = patt.matcher(txt);
 			if (m.find()) {
 
-				// First find neighboring blocks to the right...
+				// Find neighboring blocks above, to the left, and to the right...
 				if (c instanceof RTChunkBlock) {
-					RTChunkBlock rt = (RTChunkBlock) c;
-					SpatialEntity imageRect = null;
-
-					//int[] margins = rt.getPage().getMargin();
+					RTChunkBlock captionBlock = (RTChunkBlock) c;
 
 					// distance in each direction
 					// aggregated to a list:
 					List<Integer> distances = new ArrayList<Integer>();
-					int disNorth = rt.getY1() - frame.getY1();
-					ChunkBlock north = rt
-							.readNearestNeighborChunkBlock(LapdfDirection.NORTH, 30);
+					int disNorth = captionBlock.getY1() - frame.getY1();
+					ChunkBlock north = captionBlock.readNearestNeighborChunkBlock(ChunkBlock.NORTH, 30);
+					north = captionBlock.computeWordEdgeForTestBlock(north);
 					if (north != null)
-						disNorth = rt.getY1() - north.getY2();
+						disNorth = captionBlock.getY1() - north.getY2();
 					distances.add(disNorth);
 
-					int disSouth = frame.getY2() - rt.getY2();
-					ChunkBlock south = rt
-							.readNearestNeighborChunkBlock(LapdfDirection.SOUTH, 30);
-					if (south != null)
-						disSouth = south.getY1() - rt.getY2();
+					int disSouth = frame.getY2() - captionBlock.getY2();
+					ChunkBlock south = captionBlock.readNearestNeighborChunkBlock(ChunkBlock.SOUTH, 30);
+					south = captionBlock.computeWordEdgeForTestBlock(south);
+					disSouth = south.getY1() - captionBlock.getY2();
+					if (south != null) {
+						List<SpatialEntity> wordsInBlock = (captionBlock.getPage()).intersectsByType(south,
+								SpatialOrdering.MIXED_MODE, WordBlock.class);
+						String text = "";
+						for (SpatialEntity se : wordsInBlock) {
+							text += ((WordBlock) se).getWord();
+						}
+						if (text.toLowerCase().startsWith("fig"))
+							disSouth = 0;
+						else
+							disSouth = south.getY1() - captionBlock.getY2();
+					}
 					distances.add(disSouth);
-					
-					int disEast = frame.getX2() - rt.getX2();
-					ChunkBlock east = rt
-							.readNearestNeighborChunkBlock(LapdfDirection.EAST, 30);
+
+					int disEast = frame.getX2() - captionBlock.getX2();
+					ChunkBlock east = captionBlock.readNearestNeighborChunkBlock(ChunkBlock.EAST, 30);
+					east = captionBlock.computeWordEdgeForTestBlock(east);
 					if (east != null)
-						disEast = east.getX1() - rt.getX2();
+						disEast = east.getX1() - captionBlock.getX2();
 					distances.add(disEast);
 
-					int disWest = rt.getX1() - frame.getX1();
-					ChunkBlock west = rt
-							.readNearestNeighborChunkBlock(LapdfDirection.WEST, 30);
+					int disWest = captionBlock.getX1() - frame.getX1();
+					ChunkBlock west = captionBlock.readNearestNeighborChunkBlock(ChunkBlock.WEST, 30);
+					west = captionBlock.computeWordEdgeForTestBlock(west);
 					if (west != null)
-						disWest = rt.getX1() - west.getX2();
+						disWest = captionBlock.getX1() - west.getX2();
 					distances.add(disWest);
 
-					imageRect = new RTChunkBlock(rt.getX1() - disWest,
-							rt.getY1() - disNorth, rt.getX2() + disEast,
-							rt.getY2() + disSouth, -1);
-					
-					if (imageRect != null) {
-								
-						int p = rt.getPage().getPageNumber() - 1;
-						BufferedImage img = (BufferedImage) pageImages.get(p);
-						BufferedImage copy = deepCopy(img);
+					RTChunkBlock figureBlock = new RTChunkBlock(captionBlock.getX1() - disWest,
+							captionBlock.getY1() - disNorth, captionBlock.getX2() + disEast,
+							captionBlock.getY2() + disSouth, -1);
+					int id = captionBlock.getPage().countChunks();
+					figureBlock.setChunkType(ChunkBlock.TYPE_FIGURE);
 
-						double sf = img.getHeight()
-								/ (rt.getPage().getPageBoxHeight());
+					captionBlock.getPage().add(figureBlock, id);
+					captionBlockMap.put(captionBlock, figureBlock);
 
-						int x = (new Double(imageRect.getX1() * sf)).intValue();
-						int y = (new Double(imageRect.getY1() * sf)).intValue();
-						int w = (new Double(imageRect.getWidth() * sf)).intValue();
-						int h = (new Double(imageRect.getHeight() * sf)).intValue();
-						
-						BufferedImage subImg = 
-								img.getSubimage( x, y, w, h );
-						
-						for( SpatialEntity wordBlock : ((PageBlock) rt.getPage()).containsByType(
-								c, SpatialOrdering.MIXED_MODE,WordBlock.class) ) { 
-								
-							int wb_x = (new Double(wordBlock.getX1() * sf)).intValue();
-							int wb_y = (new Double(wordBlock.getY1() * sf)).intValue();
-							int wb_w = (new Double(wordBlock.getWidth() * sf)).intValue();
-							int wb_h = (new Double(wordBlock.getHeight() * sf)).intValue();
-							Graphics2D graph = subImg.createGraphics();
-							graph.setColor(Color.WHITE);
-					        graph.fill(new Rectangle(wb_x-x-15, wb_y-y, wb_w+30, wb_h));
-					        graph.dispose();
-	
-						}
-						
-						//
-						// Run through all words in chunk to see if any are left over from image.
-						//
-						List<SpatialEntity> wordsInBlock = ((PageBlock) rt.getPage()).containsByType(
-								imageRect, SpatialOrdering.MIXED_MODE, WordBlock.class);
-						List<SpatialEntity> allWordsInCaption = ((PageBlock) c.getPage()).containsByType(
-								c, SpatialOrdering.MIXED_MODE, WordBlock.class);
-						wordsInBlock.removeAll(allWordsInCaption);
-						if( wordsInBlock.size() > 5 ) {							
-							List<Map<String,String>> outputData = new ArrayList<Map<String,String>>();
-							boolean greenLight = true;
-							for(SpatialEntity se: wordsInBlock) {
-								WordBlock wb = (WordBlock) se;
-								String ww = wb.getWord();
-								if( ww.equals("Page") || ww.equals("Vol") || ww.startsWith("http://") ) {
-									greenLight = false;
-									drawSpatialEntityOnImage(copy, wb, sf, Color.CYAN, 4.0f);
-									break;
-								}
-								Map<String,String> wbo = new HashMap<String,String>(); 
-								int wb_x = (new Double((wb.getX1()-imageRect.getX1()) * sf)).intValue();
-								int wb_y = (new Double((wb.getY1()-imageRect.getY1()) * sf)).intValue();
-								int wb_w = (new Double(wb.getWidth() * sf)).intValue();
-								int wb_h = (new Double(wb.getHeight() * sf)).intValue();
-								wbo.put("word", wb.getWord());
-								wbo.put("font", wb.getFont());
-								wbo.put("p","" +  wb.getPage().getPageNumber());
-								wbo.put("x","" +  wb_x);
-								wbo.put("y", "" + wb_y);
-								wbo.put("w", "" + wb_w);
-								wbo.put("h", "" + wb_h);
-								wbo.put("fontStyle", "" + wb.getFontStyle());
-								drawSpatialEntityOnImage(copy, wb, sf, Color.BLUE, 4.0f);
-								outputData.add(wbo);
-							}
-							if(greenLight){									
-								Gson gson = new GsonBuilder().setPrettyPrinting().create();
-								String json = gson.toJson(outputData);
-								File extraWordsFile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + ".json");
-								PrintWriter out = new PrintWriter(new BufferedWriter(
-										new FileWriter(extraWordsFile, true)));
-								out.write(json);
-								out.close();
-							}
-						}
-						
-						drawSpatialEntityOnImage(copy, doc.getBodyTextFrame(), sf, Color.PINK, 4.0f);
-						drawSpatialEntityOnImage(copy, imageRect, sf, Color.RED, 4.0f);
-						if( north != null ) 
-							drawSpatialEntityOnImage(copy, north, sf, Color.GREEN, 3.0f);
-						else if( south != null ) 
-							drawSpatialEntityOnImage(copy, south, sf, Color.GREEN, 3.0f);
-						else if( east != null ) 
-							drawSpatialEntityOnImage(copy, east, sf, Color.GREEN, 3.0f);
-						else if( west != null ) 
-							drawSpatialEntityOnImage(copy, west, sf, Color.GREEN, 3.0f);
-
-						File imgfile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + ".png");
-						ImageIO.write(subImg, "png", imgfile);
-
-						File pagefile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + "_page.png");
-						ImageIO.write(copy, "png", pagefile);
-						
-					} else {
-
-						logger.info("Can't find image.");
-
-					}
+					PageBlock pg = captionBlock.getPage();
+					int p = pg.getPageNumber() - 1;
+					BufferedImage copy = (BufferedImage) copyImages.get(p);
+					double sf = copy.getHeight() / (captionBlock.getPage().getPageBoxHeight());
+					if (north != null)
+						outlineWordsOnImage(copy, pg, north, sf, Color.MAGENTA, 3.0f);
+					if (south != null)
+						outlineWordsOnImage(copy, pg, south, sf, Color.MAGENTA, 3.0f);
+					if (east != null)
+						outlineWordsOnImage(copy, pg, east, sf, Color.MAGENTA, 3.0f);
+					if (west != null)
+						outlineWordsOnImage(copy, pg, west, sf, Color.MAGENTA, 3.0f);
 
 					logger.info("Completed Figure " + m.group(2));
 
@@ -1010,31 +882,154 @@ public class LapdfEngine {
 
 		}
 
+		//
+		// Clean up figure blocks that overlap.
+		//
+		for (RTChunkBlock cb : captionBlockMap.keySet()) {
+			RTChunkBlock fb = captionBlockMap.get(cb);
+			List<SpatialEntity> overlappingBlocks = cb.getPage().intersectsByType(fb, null, ChunkBlock.class);
+			for (SpatialEntity se : overlappingBlocks) {
+				if (se instanceof RTChunkBlock && 
+						((ChunkBlock) se).getChunkType().equals(ChunkBlock.TYPE_FIGURE) &&
+						fb.getWidth() > se.getWidth() + 20 ) {
+					SpatialEntity ir = fb.getIntersectingRectangle(se);
+					if (ir.getX1() > fb.getX1())
+						fb.resize(ir.getX2() + 1, fb.getY1(), fb.getX2() - ir.getX2() - 1, fb.getY2() - fb.getY1());
+					else
+						fb.resize(fb.getX1(), fb.getY1(), ir.getX1() - fb.getX1() - 1, fb.getY2() - fb.getY1());
+					
+				}
+			}
+		}
+
+		for (RTChunkBlock captionBlock : captionBlockMap.keySet()) {
+
+			String txt = captionBlock.readChunkText();
+			Matcher m = patt.matcher(txt);
+			if (!m.find()) {
+				continue;
+			}
+
+			RTChunkBlock figureBlock = captionBlockMap.get(captionBlock);
+
+			int p = captionBlock.getPage().getPageNumber() - 1;
+
+			BufferedImage img = (BufferedImage) pageImages.get(p);
+			BufferedImage copy = (BufferedImage) copyImages.get(p);
+
+			double sf = img.getHeight() / (captionBlock.getPage().getPageBoxHeight());
+
+			int x = (new Double(figureBlock.getX1() * sf)).intValue();
+			int y = (new Double(figureBlock.getY1() * sf)).intValue();
+			int w = (new Double(figureBlock.getWidth() * sf)).intValue();
+			int h = (new Double(figureBlock.getHeight() * sf)).intValue();
+
+			BufferedImage subImg = img.getSubimage(x, y, w, h);
+
+			for (SpatialEntity wordBlock : ((PageBlock) captionBlock.getPage()).containsByType(captionBlock,
+					SpatialOrdering.MIXED_MODE, WordBlock.class)) {
+
+				int wb_x = (new Double(wordBlock.getX1() * sf)).intValue();
+				int wb_y = (new Double(wordBlock.getY1() * sf)).intValue();
+				int wb_w = (new Double(wordBlock.getWidth() * sf)).intValue();
+				int wb_h = (new Double(wordBlock.getHeight() * sf)).intValue();
+				Graphics2D graph = subImg.createGraphics();
+				graph.setColor(Color.WHITE);
+				graph.fill(new Rectangle(wb_x - x - 15, wb_y - y, wb_w + 30, wb_h));
+				graph.dispose();
+
+			}
+
+			//
+			// Run through all words in chunk to see if any are left over from image.
+			//
+			List<SpatialEntity> wordsInBlock = ((PageBlock) captionBlock.getPage()).containsByType(figureBlock,
+					SpatialOrdering.MIXED_MODE, WordBlock.class);
+			List<SpatialEntity> allWordsInCaption = ((PageBlock) captionBlock.getPage()).containsByType(captionBlock,
+					SpatialOrdering.MIXED_MODE, WordBlock.class);
+			wordsInBlock.removeAll(allWordsInCaption);
+			if (wordsInBlock.size() > 0) {
+				List<Map<String, String>> outputData = new ArrayList<Map<String, String>>();
+				boolean greenLight = true;
+				for (SpatialEntity se : wordsInBlock) {
+					WordBlock wb = (WordBlock) se;
+					/*
+					 * String ww = wb.getWord(); if (ww.equals("Page") || ww.equals("Vol") ||
+					 * ww.startsWith("http://")) { greenLight = false;
+					 * drawSpatialEntityOnImage(copy, wb, sf, Color.CYAN, 4.0f); break; }
+					 */
+					drawSpatialEntityOnImage(copy, se, sf, Color.BLUE, 4.0f);
+
+					Map<String, String> wbo = new HashMap<String, String>();
+					int wb_x = (new Double((wb.getX1() - figureBlock.getX1()) * sf)).intValue();
+					int wb_y = (new Double((wb.getY1() - figureBlock.getY1()) * sf)).intValue();
+					int wb_w = (new Double(wb.getWidth() * sf)).intValue();
+					int wb_h = (new Double(wb.getHeight() * sf)).intValue();
+					wbo.put("word", wb.getWord());
+					wbo.put("font", wb.getFont());
+					wbo.put("p", "" + wb.getPage().getPageNumber());
+					wbo.put("x", "" + wb_x);
+					wbo.put("y", "" + wb_y);
+					wbo.put("w", "" + wb_w);
+					wbo.put("h", "" + wb_h);
+					wbo.put("fontStyle", "" + wb.getFontStyle());
+					outputData.add(wbo);
+				}
+				if (greenLight) {
+					Gson gson = new GsonBuilder().setPrettyPrinting().create();
+					String json = gson.toJson(outputData);
+					File extraWordsFile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + ".json");
+					PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(extraWordsFile, true)));
+					out.write(json);
+					out.close();
+				}
+			}
+
+			drawSpatialEntityOnImage(copy, captionBlock, sf, Color.MAGENTA, 4.0f);
+			drawSpatialEntityOnImage(copy, doc.getBodyTextFrame(), sf, Color.PINK, 4.0f);
+			drawSpatialEntityOnImage(copy, figureBlock, sf, Color.RED, 4.0f);
+
+			File imgfile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + ".png");
+			ImageIO.write(subImg, "png", imgfile);
+
+			File pagefile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + "_page.png");
+			ImageIO.write(copy, "png", pagefile);
+
+		}
+
 	}
-	
-	static void drawSpatialEntityOnImage(BufferedImage bi,
-			SpatialEntity se, double sf, 
-			Color color, float stroke ) {
-		
+
+	static void drawSpatialEntityOnImage(BufferedImage bi, SpatialEntity se, double sf, Color color, float stroke) {
+
 		int x = (new Double(se.getX1() * sf)).intValue();
 		int y = (new Double(se.getY1() * sf)).intValue();
 		int w = (new Double(se.getWidth() * sf)).intValue();
 		int h = (new Double(se.getHeight() * sf)).intValue();
-		
+
 		Graphics2D graph = bi.createGraphics();
-        graph.setColor(color);
-        graph.setStroke(new BasicStroke(stroke));
-        graph.draw(new Rectangle(x+2, y+2, w-4, h-4));
-        graph.dispose();
-        
+		graph.setColor(color);
+		graph.setStroke(new BasicStroke(stroke));
+		graph.draw(new Rectangle(x, y, w, h));
+		graph.dispose();
+
 	}
-	
-	
-	static BufferedImage deepCopy(BufferedImage bi) {
-		 ColorModel cm = bi.getColorModel();
-		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		 WritableRaster raster = bi.copyData(null);
-		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+
+	static void outlineWordsOnImage(BufferedImage bi, PageBlock pg, ChunkBlock cb, double sf, Color color,
+			float stroke) {
+
+		drawSpatialEntityOnImage(bi, cb, sf, color, stroke);
+		List<SpatialEntity> wordsInBlock = pg.intersectsByType(cb, SpatialOrdering.MIXED_MODE, WordBlock.class);
+		for (SpatialEntity se : wordsInBlock) {
+			WordBlock wb = (WordBlock) se;
+			drawSpatialEntityOnImage(bi, se, sf, color, stroke);
 		}
+	}
+
+	static BufferedImage deepCopy(BufferedImage bi) {
+		ColorModel cm = bi.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = bi.copyData(null);
+		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+	}
 
 }

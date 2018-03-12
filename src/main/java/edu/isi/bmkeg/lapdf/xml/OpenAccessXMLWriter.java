@@ -71,21 +71,21 @@ public class OpenAccessXMLWriter implements XMLWriter {
 			documentContentHandler.startElement("", "", ELEMENT_NAME_BODY,
 					emptyAttribute);
 			
-			doSection(ChunkBlock.TYPE_INTRODUCTION, documentContentHandler, document);
+			doSection(ChunkBlock.SECTION_INTRODUCTION, documentContentHandler, document);
 			
-			doSection(ChunkBlock.TYPE_METHODS, documentContentHandler, document);
+			doSection(ChunkBlock.SECTION_METHODS, documentContentHandler, document);
 			
-			doSection(ChunkBlock.TYPE_DISCUSSION, documentContentHandler, document);
+			doSection(ChunkBlock.SECTION_DISCUSSION, documentContentHandler, document);
 
-			doSection(ChunkBlock.TYPE_RESULTS, documentContentHandler, document);
+			doSection(ChunkBlock.SECTION_RESULTS, documentContentHandler, document);
 			
-			doSection(ChunkBlock.TYPE_CONCLUSIONS, documentContentHandler, document);
+			doSection(ChunkBlock.SECTION_CONCLUSIONS, documentContentHandler, document);
 
 			documentContentHandler.endElement("", "", ELEMENT_NAME_BODY);
 			documentContentHandler.startElement("", "", ELEMENT_NAME_BACK,
 					emptyAttribute);
 			
-			doAbstractAndAcknowledgment(ChunkBlock.TYPE_ACKNOWLEDGEMENTS,
+			doAbstractAndAcknowledgment(ChunkBlock.SECTION_ACKNOWLEDGEMENTS,
 					documentContentHandler);
 			
 			doReferences(documentContentHandler);
@@ -121,7 +121,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 	private void writeSection(ContentHandler documentContentHandler, 
 			ArrayList<ChunkBlock> chunkList) {
 
-		Collections.sort(chunkList, new SpatialOrdering(
+		/*Collections.sort(chunkList, new SpatialOrdering(
 				SpatialOrdering.MIXED_MODE));
 		ArrayList<ChunkBlock> headingList = new ArrayList<ChunkBlock>();
 		String lastEncounteredType = "";
@@ -131,8 +131,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 		try {
 
 			for (ChunkBlock chunk : chunkList) {
-				if (chunk.getType().contains(ChunkBlock.META_TYPE_HEADING)) {
-
+				if (chunk.getChunkType().contains(ChunkBlock.META_TYPE_HEADING)) {
 					headingList.add(chunk);
 				}
 
@@ -166,7 +165,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 
 			StringBuilder builder=new StringBuilder();
 			for (ChunkBlock chunk : chunkList) {
-				if (chunk.getType().contains(ChunkBlock.META_TYPE_SUBTITLE)) {
+				if (chunk.getChunkType().contains(ChunkBlock.META_TYPE_SUBTITLE)) {
 
 					headingList.add(chunk);
 				} else {
@@ -214,20 +213,20 @@ public class OpenAccessXMLWriter implements XMLWriter {
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 
 	private String createSectionType(ChunkBlock chunk) {
-		if (chunk.getType().contains(ChunkBlock.TYPE_INTRODUCTION)) {
+		if (chunk.getChunkType().contains(ChunkBlock.SECTION_INTRODUCTION)) {
 			return "intro";
-		} else if (chunk.getType().contains(ChunkBlock.TYPE_METHODS)) {
+		} else if (chunk.getChunkType().contains(ChunkBlock.SECTION_METHODS)) {
 			return "materials|methods";
-		} else if (chunk.getType().contains(ChunkBlock.TYPE_DISCUSSION)) {
+		} else if (chunk.getChunkType().contains(ChunkBlock.SECTION_DISCUSSION)) {
 			return "discussion";
-		} else if (chunk.getType().contains(ChunkBlock.TYPE_CONCLUSIONS)) {
+		} else if (chunk.getChunkType().contains(ChunkBlock.SECTION_CONCLUSIONS)) {
 			return "conclusions";
-		} else if (chunk.getType().contains(ChunkBlock.TYPE_RESULTS)) {
+		} else if (chunk.getChunkType().contains(ChunkBlock.SECTION_RESULTS)) {
 			return "results";
 		}
 		return null;
@@ -242,7 +241,8 @@ public class OpenAccessXMLWriter implements XMLWriter {
 
 	private void doAbstractAndAcknowledgment(String type,
 			ContentHandler documentContentHandler) {
-		ArrayList<ChunkBlock> list;
+		
+		/*ArrayList<ChunkBlock> list;
 		list = mappedDocument.get(type);
 		if(list==null ||list.size()==0)
         	return;
@@ -251,7 +251,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 		String chunkText = null;
 		boolean hasSectionStarted = false;
 		String element;
-		if (ChunkBlock.TYPE_ABSTRACT.equals(type)) {
+		if (ChunkBlock.SECTION_ABSTRACT.equals(type)) {
 			element = ELEMENT_NAME_ABSTRACT;
 		} else {
 			element = ELEMENT_NAME_ACKNOWLEDGEMENT;
@@ -267,7 +267,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 						ELEMENT_NAME_SECTION, emptyAttribute);
 				StringBuilder builder=new StringBuilder();
 				for (ChunkBlock chunk : list) {
-					if (chunk.getType().contains(ChunkBlock.META_TYPE_SUBTITLE)) {
+					if (chunk.getChunkType().contains(ChunkBlock.META_TYPE_SUBTITLE)) {
 
 						headingList.add(chunk);
 					} else {
@@ -318,7 +318,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 				e.printStackTrace();
 			}
 
-		}
+		}*/
 	}
 
 	private void populateMap(LapdfDocument document) {
@@ -331,9 +331,9 @@ public class OpenAccessXMLWriter implements XMLWriter {
 
 			chunks = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 			for (ChunkBlock chunk : chunks) {
-				String type = (chunk.getType().contains(".")) ? chunk.getType()
-						.substring(0, chunk.getType().indexOf(".")) : chunk
-						.getType();
+				String type = (chunk.getChunkType().contains(".")) ? chunk.getChunkType()
+						.substring(0, chunk.getChunkType().indexOf(".")) : chunk
+						.getChunkType();
 				chunkList = mappedDocument.get(type);
 				if (chunkList == null) {
 					chunkList = new ArrayList<ChunkBlock>();
@@ -347,6 +347,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 	}
 
 	private void doReferences(ContentHandler documentContentHandler) {
+		 /*
 		StringBuilder builder = new StringBuilder();
 		ArrayList<ChunkBlock> list;
 		list = mappedDocument.get(ChunkBlock.TYPE_REFERENCES);
@@ -355,7 +356,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 		String chunkText;
 		for (ChunkBlock chunk : list) {
 
-			if (!chunk.getType().contains(ChunkBlock.META_TYPE_HEADING)) {
+			if (!chunk.getChunkType().contains(ChunkBlock.META_TYPE_HEADING)) {
 				builder.append(chunk.readChunkText());
 			}
 		}
@@ -375,7 +376,7 @@ public class OpenAccessXMLWriter implements XMLWriter {
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 

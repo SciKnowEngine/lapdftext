@@ -99,7 +99,7 @@ public class SpatialXMLWriter implements XMLWriter {
 					chunkAttribute.addAttribute("", "", BLOCK_ATTRIBUTE_Y2,
 							"CDATA", chunk.getY2() + "");
 					chunkAttribute.addAttribute("", "", BLOCK_ATTRIBUTE_TYPE,
-							"CDATA", chunk.getType() + "");
+							"CDATA", chunk.getChunkType() + "");
 					documentContentHandler.startElement("", "",
 							ELEMENT_NAME_CHUNK, chunkAttribute);
 					words = page.containsByType(chunk,

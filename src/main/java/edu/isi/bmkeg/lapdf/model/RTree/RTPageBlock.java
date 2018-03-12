@@ -190,4 +190,9 @@ public class RTPageBlock extends RTSpatialContainer implements PageBlock {
 		return list;
 	}
 
+	@Override
+	public int countChunks() {
+		return indexToChunkBlockMap.values().size();
+	}
+
 }

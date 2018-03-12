@@ -67,9 +67,7 @@ public class RTSpatialEntity extends Rectangle implements SpatialEntity {
 
 	@Override
 	public void resize( int X1, int Y1, int width, int height) {		
-
 		super.set(X1, Y1, X1+width, Y1+height);
-	
 	}
 
 	@Override

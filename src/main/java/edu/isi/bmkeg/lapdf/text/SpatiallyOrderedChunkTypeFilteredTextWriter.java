@@ -26,7 +26,7 @@ public class SpatiallyOrderedChunkTypeFilteredTextWriter implements TextWriter
 	@Override
 	public void write(LapdfDocument document, String outputFilename) throws IOException,FileNotFoundException
 	{
-		text = new StringBuilder();
+/*		text = new StringBuilder();
 		if(appendFigureLegendsToEnd){
 			figureLegend = new StringBuilder();
 		}
@@ -41,17 +41,17 @@ public class SpatiallyOrderedChunkTypeFilteredTextWriter implements TextWriter
 			page = document.getPage(i);
 			List<ChunkBlock> chunksPerPage = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 			for(ChunkBlock chunkBlock:chunksPerPage){
-				if(chunkBlock.getType().equals(ChunkBlock.TYPE_ABSTRACT_HEADING)||chunkBlock.getType().equals(ChunkBlock.TYPE_ABSTRACT_BODY)||chunkBlock.getType().equals(ChunkBlock.TYPE_INTRODUCTION_HEADING)||chunkBlock.getType().equals(ChunkBlock.TYPE_INTRODUCTION_BODY)){
+				if(chunkBlock.getChunkType().equals(ChunkBlock.TYPE_ABSTRACT_HEADING)||chunkBlock.getChunkType().equals(ChunkBlock.TYPE_ABSTRACT_BODY)||chunkBlock.getChunkType().equals(ChunkBlock.TYPE_INTRODUCTION_HEADING)||chunkBlock.getChunkType().equals(ChunkBlock.TYPE_INTRODUCTION_BODY)){
 					startRecording = true;
 				}
 				if (startRecording)
 				{
-					if (!chunkBlock.getType().equals(ChunkBlock.TYPE_TABLE)&&!chunkBlock.getType().equals(ChunkBlock.TYPE_FIGURE_LEGEND) && !chunkBlock.getType().equals(chunkBlock.TYPE_FOOTER) && !chunkBlock.getType().equals(chunkBlock.TYPE_HEADER)&& !chunkBlock.getType().equals(chunkBlock.TYPE_AUTHORS)&& !chunkBlock.getType().equals(chunkBlock.TYPE_AFFLIATION))
+					if (!chunkBlock.getChunkType().equals(ChunkBlock.TYPE_TABLE)&&!chunkBlock.getChunkType().equals(ChunkBlock.TYPE_FIGURE_LEGEND) && !chunkBlock.getChunkType().equals(chunkBlock.TYPE_FOOTER) && !chunkBlock.getChunkType().equals(chunkBlock.TYPE_HEADER)&& !chunkBlock.getChunkType().equals(chunkBlock.TYPE_AUTHORS)&& !chunkBlock.getChunkType().equals(chunkBlock.TYPE_AFFLIATION))
 					{
 						text.append(chunkBlock.readChunkText() + "\n");
 						
 					}
-					if (chunkBlock.getType().equals(ChunkBlock.TYPE_FIGURE_LEGEND))
+					if (chunkBlock.getChunkType().equals(ChunkBlock.TYPE_FIGURE_LEGEND))
 					{
 						if (appendFigureLegendsToEnd)
 						{
@@ -60,7 +60,7 @@ public class SpatiallyOrderedChunkTypeFilteredTextWriter implements TextWriter
 							text.append(chunkBlock.readChunkText() + "\n");
 						}
 					}
-					if(chunkBlock.getType().equals(ChunkBlock.TYPE_TABLE)){
+					if(chunkBlock.getChunkType().equals(ChunkBlock.TYPE_TABLE)){
 						if(appendTablesToEnd){
 							tableText.append(chunkBlock.readChunkText() + "\n");
 						}else{
@@ -78,7 +78,7 @@ public class SpatiallyOrderedChunkTypeFilteredTextWriter implements TextWriter
 			text.append(tableText);
 		}
 		ReadWriteTextFileWithEncoding.write(outputFilename, TextWriter.UTF_8, text.toString());
-		
+		*/
 	}
 
 		

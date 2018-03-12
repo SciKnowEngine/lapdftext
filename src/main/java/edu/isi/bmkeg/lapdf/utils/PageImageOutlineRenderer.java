@@ -155,7 +155,7 @@ public class PageImageOutlineRenderer {
 
 				ChunkBlock chunk = (ChunkBlock) block;
 
-				if( chunk.getType() == ChunkBlock.TYPE_UNCLASSIFIED ) {
+				if( chunk.getChunkType() == ChunkBlock.TYPE_UNCLASSIFIED ) {
 					if (countMap.get(ChunkBlock.TYPE_UNCLASSIFIED) == null) {
 						countMap.put(ChunkBlock.TYPE_UNCLASSIFIED, 1);
 					} else {
@@ -163,11 +163,11 @@ public class PageImageOutlineRenderer {
 								countMap.get(ChunkBlock.TYPE_UNCLASSIFIED) + 1);
 					}
 				} else {
-					if (countMap.get(chunk.getType()) == null) {
-						countMap.put(chunk.getType(), 1);
+					if (countMap.get(chunk.getChunkType()) == null) {
+						countMap.put(chunk.getChunkType(), 1);
 					} else {
-						countMap.put(chunk.getType(),
-								countMap.get(chunk.getType()) + 1);
+						countMap.put(chunk.getChunkType(),
+								countMap.get(chunk.getChunkType()) + 1);
 					}
 				}
 				
@@ -277,7 +277,7 @@ public class PageImageOutlineRenderer {
 
 				ChunkBlock chunk = (ChunkBlock) block;
 
-				if( chunk.getType().equals(ChunkBlock.TYPE_UNCLASSIFIED) ) {
+				if( chunk.getChunkType().equals(ChunkBlock.TYPE_UNCLASSIFIED) ) {
 					if (countMap.get(ChunkBlock.TYPE_UNCLASSIFIED) == null) {
 						countMap.put(ChunkBlock.TYPE_UNCLASSIFIED, 1);
 					} else {
@@ -285,11 +285,11 @@ public class PageImageOutlineRenderer {
 								countMap.get(ChunkBlock.TYPE_UNCLASSIFIED) + 1);
 					}
 				} else {
-					if (countMap.get(chunk.getType()) == null) {
-						countMap.put(chunk.getType(), 1);
+					if (countMap.get(chunk.getChunkType()) == null) {
+						countMap.put(chunk.getChunkType(), 1);
 					} else {
-						countMap.put(chunk.getType(),
-								countMap.get(chunk.getType()) + 1);
+						countMap.put(chunk.getChunkType(),
+								countMap.get(chunk.getChunkType()) + 1);
 					}
 				}
 				
@@ -301,7 +301,7 @@ public class PageImageOutlineRenderer {
 						chunk.getY1() , 
 						image, 
 						Color.black,
-						(i++) + ":" + chunk.getType(), 
+						(i++) + ":" + chunk.getChunkType(), 
 						12);
 
 			}
@@ -311,8 +311,9 @@ public class PageImageOutlineRenderer {
 	}
 
 	private static int colorDecider(String type) {
+		return 0x0000ff;
 		
-		if (ChunkBlock.TYPE_METHODS_HEADING.equals(type)) {
+		/*if (ChunkBlock.SECTION_METHODS_HEADING.equals(type)) {
 			return 0x0000ff;
 		} else if (ChunkBlock.TYPE_METHODS_BODY.equals(type)) {
 			return 0x008000;
@@ -380,7 +381,7 @@ public class PageImageOutlineRenderer {
 			return TYPE_UNCLASSIFIED_COLOR_CODE;
 		} else {
 			return TYPE_UNCLASSIFIED_COLOR_CODE;
-		}
+		}*/
 
 	}
 

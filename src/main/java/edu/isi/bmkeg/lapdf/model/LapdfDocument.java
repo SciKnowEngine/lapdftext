@@ -371,7 +371,7 @@ public class LapdfDocument implements Serializable {
 					);
 			
 			for(ChunkBlock chunkBlock:chunksPerPage){
-				if( sections.contains( chunkBlock.getType() ) ) {
+				if( sections.contains( chunkBlock.getChunkType() ) ) {
 					sb.append(chunkBlock.readChunkText() + "\n");
 				} 
 			}
@@ -404,7 +404,7 @@ public class LapdfDocument implements Serializable {
 					);
 			
 			for(ChunkBlock chunkBlock:chunksPerPage){
-				if( sections.contains( chunkBlock.getType() ) ) {
+				if( sections.contains( chunkBlock.getChunkType() ) ) {
 					blocks.add( chunkBlock );
 				} 
 			}
@@ -428,7 +428,7 @@ public class LapdfDocument implements Serializable {
 					);
 			
 			for(ChunkBlock chunkBlock:chunksPerPage){
-				if( chunkBlock.getType().startsWith(stem) ) {
+				if( chunkBlock.getChunkType().startsWith(stem) ) {
 					blocks.add( chunkBlock );
 				} 
 			}
@@ -503,8 +503,8 @@ public class LapdfDocument implements Serializable {
 				LapdftextXMLChunk xmlChunk = new LapdftextXMLChunk();
 				xmlPage.getChunks().add(xmlChunk);
 				
-				if( chunk.getType() != null )
-					xmlChunk.setType( chunk.getType() );
+				if( chunk.getChunkType() != null )
+					xmlChunk.setType( chunk.getChunkType() );
 				
 				xmlChunk.setFont( chunk.getMostPopularWordFont() );
 				xmlChunk.setFont( chunk.getMostPopularWordFont() );
@@ -602,7 +602,7 @@ public class LapdfDocument implements Serializable {
 		
 		xmlSecList.addAll( this.buildPmxXmlSecListFromBodyHeading(false) );
 		
-		xmlSecList.addAll(buildPmxXmlSecListFromStem( ChunkBlock.TYPE_REFERENCES ));
+		xmlSecList.addAll(buildPmxXmlSecListFromStem( ChunkBlock.SECTION_REFERENCES ));
 
 		xmlSecList.addAll(buildPmxXmlSecListFromStem( ChunkBlock.TYPE_FIGURE_LEGEND ));		
 			
@@ -636,8 +636,8 @@ public class LapdfDocument implements Serializable {
 		List<ChunkBlock> blocks = this.readStemmedChunkBlocks(stem);
 		for ( ChunkBlock b : blocks ) {
 			
-			if( b.getType().equals(stem) || 
-					b.getType().equals(stem + ".body")) {
+			if( b.getChunkType().equals(stem) || 
+					b.getChunkType().equals(stem + ".body")) {
 			
 				//
 				// As soon as we get some text, we add the first block 
@@ -648,8 +648,8 @@ public class LapdfDocument implements Serializable {
 				}
 				content.add( b.readChunkText() );
 			
-			} else if( b.getType().equals(stem + ".heading") ||
-					 b.getType().equals(stem + ".subtitle") ) {
+			} else if( b.getChunkType().equals(stem + ".heading") ||
+					 b.getChunkType().equals(stem + ".subtitle") ) {
 				
 				PmcXmlTitle xmlSecTitle = xmlSec.getTitle();
 				if(xmlSecTitle == null) {
@@ -697,8 +697,8 @@ public class LapdfDocument implements Serializable {
 		List<ChunkBlock> blocks = this.readAllChunkBlocks();
 		for ( ChunkBlock b : blocks ) {
 			
-			if( b.getType().equals(ChunkBlock.TYPE_BODY) || 
-					(b.getType().equals(ChunkBlock.TYPE_UNCLASSIFIED) && includeUnclassified ) 
+			if( b.getChunkType().equals(ChunkBlock.TYPE_BODY) || 
+					(b.getChunkType().equals(ChunkBlock.TYPE_UNCLASSIFIED) && includeUnclassified ) 
 					) {
 			
 				if( !goFlag ) {
@@ -709,8 +709,8 @@ public class LapdfDocument implements Serializable {
 				List<Object> content = xmlP.getContent();
 				content.add( b.readChunkText() );
 			
-			} else if( b.getType().equals(ChunkBlock.TYPE_HEADING) ||
-					 b.getType().equals(ChunkBlock.TYPE_SUBTITLE) ) {
+			} else if( b.getChunkType().equals(ChunkBlock.TYPE_HEADING) ||
+					 b.getChunkType().equals(ChunkBlock.TYPE_SUBTITLE) ) {
 				
 				if( !goFlag ) {
 					goFlag = true;
@@ -749,8 +749,8 @@ public class LapdfDocument implements Serializable {
 		ObjectFactory factory = new ObjectFactory();
 		List<PmcXmlSec> xmlSecList = new ArrayList<PmcXmlSec>();
 
-		PmcXmlSec xmlSec = factory.createPmcXmlSec();
-		xmlSec.setSecType(ChunkBlock.TYPE_INTRODUCTION);
+/*		PmcXmlSec xmlSec = factory.createPmcXmlSec();
+		xmlSec.setSecType(ChunkBlock.SECTION_INTRODUCTION);
 
 		List<Object> pList = xmlSec.getAddressesAndAlternativesAndArraies();
 		PmcXmlP xmlP = factory.createPmcXmlP();
@@ -761,13 +761,13 @@ public class LapdfDocument implements Serializable {
 		
 		for (ChunkBlock b : blocks) {
 
-			if (b.getType().equals(ChunkBlock.TYPE_INTRODUCTION)
-					|| b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_BODY)) {
+			if (b.getChunkType().equals(ChunkBlock.SECTION_INTRODUCTION)
+					|| b.getChunkType().equals(ChunkBlock.TYPE_INTRODUCTION_BODY)) {
 
 				content.add(b.readChunkText());
 
-			} else if (b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_HEADING)
-					|| b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_SUBTITLE)) {
+			} else if (b.getChunkType().equals(ChunkBlock.TYPE_INTRODUCTION_HEADING)
+					|| b.getChunkType().equals(ChunkBlock.TYPE_INTRODUCTION_SUBTITLE)) {
 
 				PmcXmlTitle xmlSecTitle = xmlSec.getTitle();
 				if (xmlSecTitle == null) {
@@ -785,7 +785,7 @@ public class LapdfDocument implements Serializable {
 
 			}
 
-		}
+		}*/
 
 		return xmlSecList;
 

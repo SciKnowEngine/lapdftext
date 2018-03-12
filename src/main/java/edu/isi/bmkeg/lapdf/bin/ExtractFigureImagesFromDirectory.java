@@ -1,6 +1,7 @@
 package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -52,7 +53,8 @@ public class ExtractFigureImagesFromDirectory {
 			parser.parseArgument(args);
 
 			LapdfEngine eng = new LapdfEngine();
-			
+			//URL u = parser.getClass().getClassLoader().getResource("rules/basicRules.xls");
+			//eng.setRuleFile(new File(u.getPath()));
 			Pattern pattern = Pattern.compile("\\.(.*)$");
 			
 			String[] fileTypes = {"pdf"};
@@ -75,10 +77,8 @@ public class ExtractFigureImagesFromDirectory {
 				String stem = pdf.getName().substring(0,pdf.getName().length()-4);
 				File newDir = new File(newPath);
 				
-				if( newDir.exists() ) {
-					continue;
-				}
-				newDir.mkdirs();
+				if(!newDir.exists())
+					newDir.mkdirs();
 				
 				try {					
 					eng.extractFiguresFromArticle(pdf, newDir, stem);					

@@ -28,7 +28,7 @@ public class SpatiallyOrderedChunkTextWriter implements TextWriter
 			page = document.getPage(i);
 			List<ChunkBlock> chunksPerPage = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 			for(ChunkBlock chunkBlock:chunksPerPage){
-				if(!chunkBlock.getType().equals(ChunkBlock.TYPE_FOOTER)&&!chunkBlock.getType().equals(ChunkBlock.TYPE_HEADER)){
+				if(!chunkBlock.getChunkType().equals(ChunkBlock.TYPE_FOOTER)&&!chunkBlock.getChunkType().equals(ChunkBlock.TYPE_HEADER)){
 					text.append(chunkBlock.readChunkText() + "\n");
 				}
 			}

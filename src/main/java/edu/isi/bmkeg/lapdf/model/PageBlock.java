@@ -16,4 +16,6 @@ public interface PageBlock extends Block, SpatialContainer {
 
 	public LapdfDocument getDocument();
 
+	public int countChunks();
+
 }

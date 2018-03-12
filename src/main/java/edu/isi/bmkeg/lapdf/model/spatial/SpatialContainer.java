@@ -35,7 +35,7 @@ public interface SpatialContainer extends Serializable {
 
 	public List<SpatialEntity> intersectsByType(SpatialEntity entity,
 			String ordering, Class classType);
-
+	
 	public SpatialEntity getEntity(int id);
 
 	public int getMostPopularWordHeightPage();

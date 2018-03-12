@@ -1,17 +1,12 @@
 package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
-import edu.isi.bmkeg.lapdf.controller.LapdfMode;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.uima.cpe.CommandLineFitPipeline;
 import edu.isi.bmkeg.utils.Converters;
 
 public class ImagifyBlocks
