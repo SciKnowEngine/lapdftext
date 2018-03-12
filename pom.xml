@@ -15,16 +15,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-					</archive>
-				</configuration>
-			</plugin>
-			<!-- NOTE: We don't need a groupId specification because the group is 
-				org.apache.maven.plugins ...which is assumed by default. -->
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2.1</version>
 				<configuration>
@@ -96,25 +86,6 @@
 										</versionRange>
 										<goals>
 											<goal>xjc</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.felix
-										</groupId>
-										<artifactId>
-											maven-bundle-plugin
-										</artifactId>
-										<versionRange>
-											[1.4.0,)
-										</versionRange>
-										<goals>
-											<goal>manifest</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
