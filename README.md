@@ -2,20 +2,15 @@
 
 ## Installation Instructions 
 
-Follow this link to for one-click installers for LAPDF-Text:
+This is a Maven project and should be installed by issuing the following commands:
+```
+$ git clone https://github.com/SciKnowEngine/lapdftext/
+$ cd lapdftext
+$ mvn clean install assembly:assembly
+```
+This will build the `jar` archive file: `target/lapdftext-1.8.0-SNAPSHOT-jar-with-dependencies.jar`
 
-http://bmkeg.github.io/lapdfInstallers.html
-
-Once built, you can use the command line to issue text extraction commands on PDF files.
-The current version of LA-PDFText requires Java 1.6 in order to run and supports the following operating systems: 
-
-* MacOSX (Developed on Mountain Lion, but should work in most environments). 
-* Windows XP
-* Linux
-
-Mac and windows users can run their installers by simply double-clicking the installer icon while Linux users are provided with a *.tar.gz archive. 
-
-_Note: OS X 10.8 (Mountain Lion) introduced a new security feature that, by default, limits "acceptable" applications to only those downloaded from the Mac App store. Thankfully, you can alter this in the system preferences. Go to "Security & Privacy" and change the "Allow applications downloaded from:" to "Anywhere". LA-PDFText will launch successfully after this change._
+You can execute commands against this library to run extraction tasks from PDF files. 
 
 ## Command-line functionality 
 
