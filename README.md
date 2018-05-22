@@ -1,4 +1,4 @@
-# Documentation for the Layout Aware PDF (LAPDF) Extraction Library
+# Layout Aware PDF (LAPDF) Extraction 
 
 ## Installation Instructions 
 
