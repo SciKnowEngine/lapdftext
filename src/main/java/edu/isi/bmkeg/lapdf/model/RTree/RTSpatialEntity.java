@@ -152,6 +152,24 @@ public class RTSpatialEntity extends Rectangle implements SpatialEntity {
 		return false;
 
 	}
+
+	@Override
+	/**
+	 * Is this 
+	 */
+	public boolean isInside(SpatialEntity entity) {
+
+		java.awt.Rectangle r1 = new java.awt.Rectangle(
+				this.getX1(), this.getY1(), this.getWidth(), this.getHeight()
+				);
+		
+		java.awt.Rectangle r2 = new java.awt.Rectangle(
+				entity.getX1(), entity.getY1(), entity.getWidth(), entity.getHeight()
+				);
+		
+		return r1.contains(r2);
+		
+	}
 	
 		
 }

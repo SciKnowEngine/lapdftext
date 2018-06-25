@@ -58,6 +58,8 @@ import edu.isi.bmkeg.lapdf.utils.JPedalPDFRenderer;
 import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
 import edu.isi.bmkeg.lapdf.xml.OpenAccessXMLWriter;
 import edu.isi.bmkeg.lapdf.xml.SpatialXMLWriter;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.Converters;
 
 /**
@@ -84,6 +86,7 @@ public class LapdfEngine {
 	private boolean imgFlag = false;
 
 	private JPedalPDFRenderer imagifier = new JPedalPDFRenderer();
+
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -807,8 +810,6 @@ public class LapdfEngine {
 			Matcher m = patt.matcher(txt);
 			if (m.find()) {
 				
-				
-
 				// Find neighboring blocks above, to the left, and to the right...
 				if (c instanceof RTChunkBlock) {
 					RTChunkBlock captionBlock = (RTChunkBlock) c;
@@ -907,7 +908,9 @@ public class LapdfEngine {
 				}
 			}
 		}
-
+		
+		Map<String, Integer> fontStyles = new HashMap<String, Integer>();
+		int idCount = 0;
 		for (RTChunkBlock captionBlock : captionBlockMap.keySet()) {
 
 			String txt = captionBlock.readChunkText();
@@ -954,41 +957,55 @@ public class LapdfEngine {
 			List<SpatialEntity> allWordsInCaption = ((PageBlock) captionBlock.getPage()).containsByType(captionBlock,
 					SpatialOrdering.MIXED_MODE, WordBlock.class);
 			wordsInBlock.removeAll(allWordsInCaption);
+			
+			List<SpatialEntity> wordsFromExternalBlocks = new ArrayList<SpatialEntity>();
+			Set<ChunkBlock> chunks = new HashSet<ChunkBlock>();
+			for (SpatialEntity se : wordsInBlock) {
+				WordBlock wb = (WordBlock) se;
+				ChunkBlock cb = (ChunkBlock) wb.getContainer();
+				if(cb.isInside(figureBlock))
+					chunks.add(cb);
+				else
+					wordsFromExternalBlocks.add(se);
+			}
+			wordsInBlock.removeAll(wordsFromExternalBlocks);
+		
 			if (wordsInBlock.size() > 0) {
-				List<Map<String, String>> outputData = new ArrayList<Map<String, String>>();
+					
 				boolean greenLight = true;
+				
+				HashMap<String, List> figWords = new HashMap<String,List>();
+				List<LapdftextXMLChunk> xmlChunkList = new ArrayList<LapdftextXMLChunk>();
+				figWords.put("chunks", xmlChunkList);
+				List<LapdftextXMLWord> xmlWordList = new ArrayList<LapdftextXMLWord>();
+				figWords.put("words", xmlWordList);
+				for(ChunkBlock cb : chunks) {
+					LapdftextXMLChunk xmlChunk = new LapdftextXMLChunk(cb, idCount, fontStyles);
+					xmlChunkList.add(xmlChunk);
+					List<SpatialEntity> wordsInChunk = ((PageBlock) cb.getPage()).containsByType(cb,
+							SpatialOrdering.MIXED_MODE, WordBlock.class);
+					idCount += 1 + wordsInChunk.size();
+					for (SpatialEntity se : wordsInChunk) {
+						wordsInBlock.remove(se);
+					}
+				}								
 				for (SpatialEntity se : wordsInBlock) {
 					WordBlock wb = (WordBlock) se;
-					/*
-					 * String ww = wb.getWord(); if (ww.equals("Page") || ww.equals("Vol") ||
-					 * ww.startsWith("http://")) { greenLight = false;
-					 * drawSpatialEntityOnImage(copy, wb, sf, Color.CYAN, 4.0f); break; }
-					 */
-					drawSpatialEntityOnImage(copy, se, sf, Color.BLUE, 4.0f);
-
-					Map<String, String> wbo = new HashMap<String, String>();
-					int wb_x = (new Double((wb.getX1() - figureBlock.getX1()) * sf)).intValue();
-					int wb_y = (new Double((wb.getY1() - figureBlock.getY1()) * sf)).intValue();
-					int wb_w = (new Double(wb.getWidth() * sf)).intValue();
-					int wb_h = (new Double(wb.getHeight() * sf)).intValue();
-					wbo.put("word", wb.getWord());
-					wbo.put("font", wb.getFont());
-					wbo.put("p", "" + wb.getPage().getPageNumber());
-					wbo.put("x", "" + wb_x);
-					wbo.put("y", "" + wb_y);
-					wbo.put("w", "" + wb_w);
-					wbo.put("h", "" + wb_h);
-					wbo.put("fontStyle", "" + wb.getFontStyle());
-					outputData.add(wbo);
+					LapdftextXMLWord xmlWord = new LapdftextXMLWord(wb, idCount, fontStyles);
+					idCount++;
+					xmlWordList.add(xmlWord);
+					drawSpatialEntityOnImage(copy, se, sf, Color.BLUE, 4.0f);		
 				}
-				if (greenLight) {
+				
+				if (greenLight) {	
 					Gson gson = new GsonBuilder().setPrettyPrinting().create();
-					String json = gson.toJson(outputData);
+					String json = gson.toJson(figWords);
 					File extraWordsFile = new File(outDir + "/" + stem + "_fig_" + m.group(2) + ".json");
 					PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(extraWordsFile, true)));
 					out.write(json);
 					out.close();
 				}
+			
 			}
 
 			drawSpatialEntityOnImage(copy, captionBlock, sf, Color.MAGENTA, 4.0f);
@@ -1003,6 +1020,30 @@ public class LapdfEngine {
 
 		}
 
+	}
+
+	/**
+	 * @param figureBlock
+	 * @param sf
+	 * @param outputData
+	 * @param wb
+	 * @return 
+	 */
+	private Map<String, String> convertWordBlockToObject(RTChunkBlock figureBlock, double sf,WordBlock wb) {
+		Map<String, String> wbo = new HashMap<String, String>();
+		int wb_x = (new Double((wb.getX1() - figureBlock.getX1()) * sf)).intValue();
+		int wb_y = (new Double((wb.getY1() - figureBlock.getY1()) * sf)).intValue();
+		int wb_w = (new Double(wb.getWidth() * sf)).intValue();
+		int wb_h = (new Double(wb.getHeight() * sf)).intValue();
+		wbo.put("word", wb.getWord());
+		wbo.put("font", wb.getFont());
+		wbo.put("p", "" + wb.getPage().getPageNumber());
+		wbo.put("x", "" + wb_x);
+		wbo.put("y", "" + wb_y);
+		wbo.put("w", "" + wb_w);
+		wbo.put("h", "" + wb_h);
+		wbo.put("fontStyle", "" + wb.getFontStyle());
+		return wbo;
 	}
 
 	static void drawSpatialEntityOnImage(BufferedImage bi, SpatialEntity se, double sf, Color color, float stroke) {

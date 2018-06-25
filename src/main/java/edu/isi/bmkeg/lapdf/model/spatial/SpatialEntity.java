@@ -29,6 +29,8 @@ public interface SpatialEntity extends Serializable {
 	
 	public SpatialEntity getIntersectingRectangle(SpatialEntity entity);
 	
+	public boolean isInside(SpatialEntity container);
+	
 	public int getId();
 	
 	public void setId(int id);
