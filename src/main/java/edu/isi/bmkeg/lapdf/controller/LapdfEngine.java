@@ -965,7 +965,7 @@ public class LapdfEngine {
 				ChunkBlock cb = (ChunkBlock) wb.getContainer();
 				if(cb.isInside(figureBlock))
 					chunks.add(cb);
-				else
+				else 
 					wordsFromExternalBlocks.add(se);
 			}
 			wordsInBlock.removeAll(wordsFromExternalBlocks);

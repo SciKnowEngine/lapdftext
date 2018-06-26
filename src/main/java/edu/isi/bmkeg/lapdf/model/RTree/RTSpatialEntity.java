@@ -155,7 +155,7 @@ public class RTSpatialEntity extends Rectangle implements SpatialEntity {
 
 	@Override
 	/**
-	 * Is this 
+	 * Is this inside entity
 	 */
 	public boolean isInside(SpatialEntity entity) {
 
@@ -167,7 +167,7 @@ public class RTSpatialEntity extends Rectangle implements SpatialEntity {
 				entity.getX1(), entity.getY1(), entity.getWidth(), entity.getHeight()
 				);
 		
-		return r1.contains(r2);
+		return r2.contains(r1);
 		
 	}
 	
