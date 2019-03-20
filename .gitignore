@@ -1,4 +1,5 @@
 target
+.factorypath
 *.class
 /.settings
 /.classpath

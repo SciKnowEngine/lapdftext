@@ -218,6 +218,7 @@ public class LapdfDocument implements Serializable {
 
 	public void calculateBodyTextFrame() {
 
+
 		String mp = (String) this.fontFrequencyCounter.getMostPopular();
 		String[] mpArray = mp.split(";");
 		
@@ -232,6 +233,8 @@ public class LapdfDocument implements Serializable {
 			
 			for( ChunkBlock cb : pg.getAllChunkBlocks(SpatialOrdering.MIXED_MODE) ) {
 				
+				if( cb.getMostPopularWordHeight() == 0 ) 
+					continue;
 				float approxLineCount = cb.getHeight() / cb.getMostPopularWordHeight();
 				if( approxLineCount < 1.9 ) 
 					continue;
